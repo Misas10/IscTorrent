@@ -1,6 +1,8 @@
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 public class IscTorrent {
-    public IscTorrent() {
-    }
 
     public static void main(String[] args) {
         String host = args[0];
@@ -10,6 +12,12 @@ public class IscTorrent {
         node.start();
 
         System.out.println("\nNew node: " + node);
+
+        try {
+            Files.createDirectories(Paths.get("../folders/dl" + (port - 8080)));
+        } catch (IOException e) {
+            System.out.println("Error creating the folder: " + e.getMessage());
+        }
 
         Gui gui = new Gui(node);
         gui.start();

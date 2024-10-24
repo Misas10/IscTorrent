@@ -2,7 +2,6 @@ import java.io.*;
 import java.net.*;
 
 public class Server {
-    // private static final String host = Constants.HOST;
     private final int port;
     public Server(int port){
         this.port = port;
@@ -22,6 +21,5 @@ public class Server {
             ServerThread st = new ServerThread(clientSocket);
             st.start();
         }
-        // System.out.println("Client connected in: " + clientSocket.getPort());
     }
 }

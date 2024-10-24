@@ -22,7 +22,7 @@ public class Gui {
 
         JTextField text_field = new JTextField();
 
-        JList result_list = new JList(new String[]{"Hi", "Hey", "Hello"});
+        JList result_list = new JList();
         result_list.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 
         // Creating the buttons

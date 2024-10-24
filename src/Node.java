@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.net.Socket;
+import java.util.List;
 
 public class Node extends Thread{
     // private int id;
@@ -7,7 +8,7 @@ public class Node extends Thread{
     private final int port;
     private final Server server;
     // private final Client client;
-    private Socket socket = null;
+    private List<Socket> connected_sockets;
 
     public Node(String host, int port) {
         this.host = host;
@@ -35,11 +36,14 @@ public class Node extends Thread{
     }
 
     public void connect(String host, int port) {
+        //new Socket().isConnected();
         try {
-            socket = new Socket(host, port);
+            Boolean socket = new Socket(host, port).isConnected();
             System.out.println(this + " - [Connection establish with: " + host + ":" + port + "]");
 
-            socket.close();
+            //connected_sockets.add(socket);
+
+            // socket.close();
         } catch (IOException e) {
            System.out.println(e.getMessage());
         }
