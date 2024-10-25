@@ -10,13 +10,10 @@ public class Gui {
 
     public Gui(Node node) {
         this.node = node;
-    }
 
-    public void start() {
         // Creating instance of JFrame
         JFrame frame = new JFrame();
         frame.setTitle(node.toString());
-
 
         JLabel label = new JLabel("Texto a procurar:");
 
@@ -58,11 +55,18 @@ public class Gui {
             @Override
             public void actionPerformed(ActionEvent e) {
                 connect_node.setVisible(true);
-
-                /*node.start();
-                node.connect(8081);*/
             }
         });
+
+        search_button.addActionListener( new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+              System.out.println("Clicked");
+
+              node.search(text_field.getText());
+          }
+        });
+
     }
 
     JFrame set_connect_node_frame () {

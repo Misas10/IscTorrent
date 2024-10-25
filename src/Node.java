@@ -35,19 +35,13 @@ public class Node extends Thread{
         return host;
     }
 
-    public void connect(String host, int port) {
-        //new Socket().isConnected();
-        try {
-            Boolean socket = new Socket(host, port).isConnected();
-            System.out.println(this + " - [Connection establish with: " + host + ":" + port + "]");
-
-            //connected_sockets.add(socket);
-
-            // socket.close();
-        } catch (IOException e) {
-           System.out.println(e.getMessage());
-        }
+    public List<Socket> getConnected_sockets() {
+      return connected_sockets;
     }
+
+    public void connect(String host, int port) {  new NewConnectionRequest(host, port); }
+
+	  public void search(String text) { new WordSearchMessage(text, this); }
 
     @Override
     public String toString() {
@@ -56,4 +50,5 @@ public class Node extends Thread{
                 ", port=" + port +
                 '}';
     }
+
 }

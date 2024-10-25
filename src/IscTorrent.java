@@ -19,7 +19,6 @@ public class IscTorrent {
             System.out.println("Error creating the folder: " + e.getMessage());
         }
 
-        Gui gui = new Gui(node);
-        gui.start();
+        new Gui(node);
     }
 }
