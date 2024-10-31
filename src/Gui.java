@@ -5,6 +5,10 @@ import java.io.*;
 import javax.swing.*;
 import static javax.swing.GroupLayout.Alignment.*;
 
+/*
+ALL the GUI from the app is handle in this class
+ */
+
 public class Gui {
     private final Node node;
 
@@ -61,8 +65,6 @@ public class Gui {
         search_button.addActionListener( new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-              System.out.println("Clicked");
-
               node.search(text_field.getText());
           }
         });

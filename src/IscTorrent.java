@@ -5,16 +5,21 @@ import java.nio.file.Paths;
 public class IscTorrent {
 
     public static void main(String[] args) {
+
+        // Receives the parameters from CLI
         String host = args[0];
         int port = Integer.parseInt(args[1]);
 
+        // Create a node
         Node node = new Node(host, port);
         node.start();
 
         System.out.println("\nNew node: " + node);
 
         try {
-            Files.createDirectories(Paths.get("../folders/dl" + (port - 8080)));
+            // Create a directory to store all the music file, and it creates only if is NOT already created
+            Files.createDirectories(Paths.get(node.getFolderPath()));
+
         } catch (IOException e) {
             System.out.println("Error creating the folder: " + e.getMessage());
         }
