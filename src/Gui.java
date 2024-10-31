@@ -1,9 +1,7 @@
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.*;
 import javax.swing.*;
-import static javax.swing.GroupLayout.Alignment.*;
 
 /*
 ALL the GUI from the app is handle in this class
@@ -23,7 +21,7 @@ public class Gui {
 
         JTextField text_field = new JTextField();
 
-        JList result_list = new JList();
+        JList<String> result_list = new JList<String>();
         result_list.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 
         // Creating the buttons

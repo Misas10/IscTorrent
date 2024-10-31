@@ -17,7 +17,11 @@ public class Server {
         // Wait for a client to connect
         while (true){
             clientSocket = serverSocket.accept();
-            // node.setSocket(clientSocket);
+
+            // After connection receive from "clientSocket"
+            // Add to connected sockets
+            node.add(clientSocket);
+
             System.out.println("Connected in port: " + clientSocket.getPort());
             ServerThread st = new ServerThread(clientSocket, node);
             st.start();

@@ -1,7 +1,4 @@
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,12 +19,13 @@ public class NewConnectionRequest {
 
     try {
         // Open a socket connection with "host:port"
-		Socket socket = new Socket(host, port);
+		    Socket socket = new Socket(host, port);
+        node.add(socket);
 
-        System.out.println(this + " - [Connection establish with: " + host + ":" + port + "]");
+        System.out.println(this + " - [Connection establish with: " + host + ":" + socket.getPort() + "]");
 
         // Handles all the work in another thread
-        new ClientThread(socket, node).start();
+        new ClientThread(socket).start();
 
         // socket.close();
 	} catch (Exception e) {

@@ -19,8 +19,7 @@ public class Node extends Thread implements Serializable {
     private final String host;
     private final int port;
     // private final Server server;
-    // private Socket socket;
-    private final List<Node> connected_sockets = new ArrayList<>();
+    private final List<Socket> connected_sockets = new ArrayList<>();
 
     public Node(String host, int port) {
         this.host = host;
@@ -48,11 +47,11 @@ public class Node extends Thread implements Serializable {
         return host;
     }
 
-    public void add(Node node) {
+    public void add(Socket node) {
         this.connected_sockets.add(node);
     }
 
-    public List<Node> getConnected_sockets() {
+    public List<Socket> getConnected_sockets() {
       return connected_sockets;
     }
 
