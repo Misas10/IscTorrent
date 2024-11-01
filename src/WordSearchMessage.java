@@ -22,53 +22,25 @@ public class WordSearchMessage {
     this.node = node;
 
     try {
-      // Goes to all of the conencted nodes
-      for (Socket socket : node.getConnected_sockets()) {
+      // For every connected Node
+      System.out.println(node.getConnected_servers());
 
-        ObjectOutputStream outToServer = new ObjectOutputStream(socket.getOutputStream());
-        ObjectInputStream inFromServer = new ObjectInputStream(socket.getInputStream());
+      for (int port : node.getConnected_servers()) {
 
-        // Get the files to search
-        outToServer.writeObject("/files");
+        // Opens a socket connection
+        // (Closes inside the "SearchThread" class)
+        Socket socket = new Socket(node.getHost(), port);
 
-        List<String> fileNames = new ArrayList<>();
+        // Search on a separete thread
+        new SearchThread(socket, fileSearchResults, this).start();
 
-        for (String fileName : fileNames) {
-          // Filter the files in the connected node
-          if (fileName.contains(kw)) {
-
-            outToServer.writeObject("/file " + fileName);
-            // Object object = inFromServer.readObject();
-            File file;
-
-            // if(object instanceof File)
-               // file = (File) object;
-
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-
-            byte[] encondedHash = new byte[0]; // = digest.digest(file);
-
-            FileSearchResult fileSearchResult = new FileSearchResult(
-                    this,
-                    encondedHash,
-                    fileName,
-                    0,// file.length(),
-                    node.getHost(),
-                    socket.getPort()
-            );
-
-            fileSearchResults.add(fileSearchResult);
-            System.out.println("[Found: '" + fileName + "' in: " + socket.getPort() + "]");
-          }
-        }
-
-        outToServer.reset();
-        inFromServer.reset();
-        // socket.close();
+        // outToServer.reset();
+        // inFromServer.reset();
       }
 
     } catch (Exception e){
-      e.printStackTrace();
+        throw new RuntimeException(e);
+      // e.printStackTrace();
     }
   }
 

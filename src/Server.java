@@ -20,7 +20,6 @@ public class Server {
 
             // After connection receive from "clientSocket"
             // Add to connected sockets
-            node.add(clientSocket);
 
             System.out.println("Connected in port: " + clientSocket.getPort());
             ServerThread st = new ServerThread(clientSocket, node);

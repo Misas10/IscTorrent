@@ -4,6 +4,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /*
 This is where all the server work is done
@@ -11,7 +12,7 @@ This is where all the server work is done
 
 public class ServerThread extends Thread{
     private Socket clientSocket = null;
-	  private Node node;
+	  private final Node node;
 
     public ServerThread(Socket s, Node node) {
         this.clientSocket = s;
@@ -32,6 +33,8 @@ public class ServerThread extends Thread{
 
             Object object;
 
+            // if(inFromClient.available() != 0)
+
             while((object = inFromClient.readObject()) != null){
 
                 switch (object) {
@@ -39,19 +42,29 @@ public class ServerThread extends Thread{
 
                     // Commands that can be received from the client
                     case String line -> {
-                        if (line.contains("/file")) {
-                            String fileName = line.split(" ")[1];
+                        String[] options = line.split(" ");
 
-                            System.out.println(fileName);
+                        switch (options[0]) {
+                            case "/file" -> {
+                                String fileName = options[1];
+                                System.out.println(fileName);
+                            }
+                            case "/files" -> {
+                                System.out.println("Request to send all the files!!");
 
-                        }else if(line.contains("/files")) {
-                            System.out.println("Request to send all the files!!");
-                            System.out.println(node.getFiles());
+                                System.out.println(node);
+                                System.out.println(node.getFiles());
+                                outToClient.writeObject(node.getFiles());
+                            }
+                            case "/connect" -> {
+                                int port = Integer.parseInt(line.split(" ")[1]);
+                                node.add(port);
+                            }
                         }
-                          
 
+                            System.out.println(object);
                     }
-                    
+
                     default -> {
                     }
                 }
@@ -59,8 +72,8 @@ public class ServerThread extends Thread{
                 // System.out.println(object);
             } // while (inFromClient.available() > 0);
 
-            outToClient.reset();
-            inFromClient.reset();
+            // outToClient.reset();
+            // inFromClient.reset();
 
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -69,8 +82,6 @@ public class ServerThread extends Thread{
             System.err.println("Localized: " + e.getLocalizedMessage());
             System.err.println("Stack Trace: " + e.getStackTrace());
             System.err.println("To String: " + e.toString());*/
-        } finally {
-
         }
     }
 }

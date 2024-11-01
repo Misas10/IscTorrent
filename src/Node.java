@@ -19,7 +19,7 @@ public class Node extends Thread implements Serializable {
     private final String host;
     private final int port;
     // private final Server server;
-    private final List<Socket> connected_sockets = new ArrayList<>();
+    private final List<Integer> connected_servers = new ArrayList<>();
 
     public Node(String host, int port) {
         this.host = host;
@@ -47,15 +47,21 @@ public class Node extends Thread implements Serializable {
         return host;
     }
 
-    public void add(Socket node) {
-        this.connected_sockets.add(node);
+    public void add(int node) {
+        this.connected_servers.add(node);
     }
 
-    public List<Socket> getConnected_sockets() {
-      return connected_sockets;
+    public List<Integer> getConnected_servers() {
+      return connected_servers;
     }
 
-    public void connect(String host, int port) { new NewConnectionRequest(host, port, this); }
+    public void connect(String host, int port) {
+        if(!connected_servers.contains(port))
+            new NewConnectionRequest(host, port, this);
+
+        else
+            System.out.println(port + " is already connected!\n");
+    }
 
     public void search(String text) { new WordSearchMessage(text, this); }
 
@@ -72,9 +78,11 @@ public class Node extends Thread implements Serializable {
     // It gets all the files from the default folder for this Node
     public List<String> getFiles() {
 
-        File[] files = new File(getFolderPath()).listFiles();
+        File folder = new File(getFolderPath());
+        File[] files = folder.listFiles();
 
         if(files == null)
+
             return null;
 
         List<String> f = new ArrayList<>();
@@ -84,5 +92,26 @@ public class Node extends Thread implements Serializable {
 
         return f;
 
+    }
+
+    // For testing
+    public static void main(String[] args) {
+
+        Node node = new Node("localhost", 8081);
+        System.out.println(System.getProperty("user.dir") + node.getFolderPath());
+        System.out.println(node.getFolderPath());
+
+        System.out.println(node.getFiles());
+
+        File folder = new File("./folders");
+        File[] files = folder.listFiles();
+
+        List<String> f = new ArrayList<>();
+
+        assert files != null;
+        for(File file : files)
+            f.add(file.getName());
+
+        System.out.println(f);
     }
 }

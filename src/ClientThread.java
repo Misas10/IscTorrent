@@ -23,6 +23,7 @@ public class ClientThread extends Thread{
 
             Object object;
 
+
             while ((object = inFromServer.readObject()) != null) {
                 if(object instanceof ArrayList<?>)
                     System.out.println(object);
