@@ -10,9 +10,14 @@ public class IscTorrent {
         String host = args[0];
         int port = Integer.parseInt(args[1]);
 
+        // Parameters given
+        System.out.println("Host: " + host);
+        System.out.println("Port: " + port);
+
         // Create a node
         Node node = new Node(host, port);
         node.start();
+
 
         System.out.println("\nNew node: " + node);
 

@@ -10,9 +10,10 @@ import java.util.Objects;
 This is where all the server work is done
  */
 
-public class ServerThread extends Thread{
+public class ServerThread extends Thread {
+
     private Socket clientSocket = null;
-	  private final Node node;
+    private final Node node;
 
     public ServerThread(Socket s, Node node) {
         this.clientSocket = s;
@@ -22,58 +23,45 @@ public class ServerThread extends Thread{
     @Override
     public void run() {
 
-        // ObjectOutputStream outToClient;
-        // ObjectInputStream inFromClient;
-
         try {
             // Socket socket = node;
 
-            ObjectOutputStream outToClient = new ObjectOutputStream(clientSocket.getOutputStream());
-            ObjectInputStream inFromClient = new ObjectInputStream(clientSocket.getInputStream());
+            ObjectOutputStream outToClient = new ObjectOutputStream( clientSocket.getOutputStream() );
+            ObjectInputStream inFromClient = new ObjectInputStream( clientSocket.getInputStream() );
 
             Object object;
 
             // if(inFromClient.available() != 0)
 
-            while((object = inFromClient.readObject()) != null){
+            while( ( object = inFromClient.readObject() ) != null ) {
 
-                switch (object) {
-                    case ArrayList<?> objects -> System.out.println(object);
+                String client_input_data = ( String ) object;
+                String[] client_input_data_args = client_input_data.split( " " );
 
-                    // Commands that can be received from the client
-                    case String line -> {
-                        String[] options = line.split(" ");
+                switch ( client_input_data_args[ 0 ] ) {
 
-                        switch (options[0]) {
-                            case "/file" -> {
-                                String fileName = options[1];
-                                System.out.println(fileName);
-                            }
-                            case "/files" -> {
-                                System.out.println("Request to send all the files!!");
+                    case "/file": {
+                        String fileName = client_input_data_args[1];
+                        System.out.println(fileName);
+                    }
+                    case "/files": {
+                        System.out.println("Request to send all the files!!");
 
-                                System.out.println(node);
-                                System.out.println(node.getFiles());
-                                outToClient.writeObject(node.getFiles());
-                            }
-                            case "/connect" -> {
-                                int port = Integer.parseInt(line.split(" ")[1]);
-                                node.add(port);
-                            }
-                        }
+                        System.out.println(node);
+                        System.out.println(node.getFiles());
+                        outToClient.writeObject(node.getFiles());
+                    }
+                    case "/connect": {
 
-                            System.out.println(object);
+                        node.add_new_open_connection_to_list(
+                            new Connection( new IP( client_input_data_args[ 1 ] ) , clientSocket )
+                        );
+
                     }
 
-                    default -> {
-                    }
                 }
 
-                // System.out.println(object);
-            } // while (inFromClient.available() > 0);
-
-            // outToClient.reset();
-            // inFromClient.reset();
+            }
 
         } catch (Exception e) {
             throw new RuntimeException(e);

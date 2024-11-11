@@ -16,21 +16,17 @@ Implements a Serializable to be able to send Nodes tru the sockets
 
 public class Node extends Thread implements Serializable {
     // private int id;
-    private final String host;
-    private final int port;
+    private final IP node_ip;
     // private final Server server;
-    private final List<Integer> connected_servers = new ArrayList<>();
+    private final List<Integer> connected_servers = new ArrayList<>(); // ??
 
-    public Node(String host, int port) {
-        this.host = host;
-        this.port = port;
+    private final List< Connection > open_connections = new ArrayList<>();
 
-
-        // this.server = new Server(this);
-    }
+    public Node(String host, int port) { node_ip = new IP( host, port ); }
 
     @Override
     public void run() {
+
         try {
             new Server(this).listen();
         } catch (IOException e){
@@ -40,27 +36,40 @@ public class Node extends Thread implements Serializable {
     }
 
     public int getPort() {
-        return port;
+        return node_ip.get_port();
     }
 
     public String getHost() {
-        return host;
+        return node_ip.get_host();
     }
 
     public void add(int node) {
         this.connected_servers.add(node);
     }
 
+    public void add_new_open_connection_to_list( final Connection open_connection ) 
+        { open_connections.add( open_connection ); }
+
     public List<Integer> getConnected_servers() {
       return connected_servers;
     }
 
     public void connect(String host, int port) {
-        if(!connected_servers.contains(port))
-            new NewConnectionRequest(host, port, this);
 
-        else
-            System.out.println(port + " is already connected!\n");
+        Connection new_connection = new Connection( new IP( host, port ) );
+
+        if( ! open_connections.contains( new_connection ) ) {
+
+            // Tries to connect with given ip 
+            // information
+            new_connection.connect_with( node_ip );
+
+            if ( new_connection.is_connected() ) { open_connections.add( new_connection ); return; }
+        
+        }
+
+        System.out.println(port + " is already connected!\n");
+        
     }
 
     public void search(String text) { new WordSearchMessage(text, this); }
@@ -70,8 +79,8 @@ public class Node extends Thread implements Serializable {
     @Override
     public String toString() {
         return "Node {" +
-                "host='" + host + '\'' +
-                ", port=" + port +
+                "host='" + getHost() + '\'' +
+                ", port=" + getPort() +
                 '}';
     }
 
@@ -114,4 +123,5 @@ public class Node extends Thread implements Serializable {
 
         System.out.println(f);
     }
+
 }
