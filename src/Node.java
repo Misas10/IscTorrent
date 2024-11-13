@@ -58,13 +58,15 @@ public class Node extends Thread implements Serializable {
 
         Connection new_connection = new Connection( new IP( host, port ) );
 
+        System.out.println("Connection attemp!");
+
         if( ! open_connections.contains( new_connection ) ) {
 
-            // Tries to connect with given ip 
-            // information
-            new_connection.connect_with( node_ip );
-
-            if ( new_connection.is_connected() ) { open_connections.add( new_connection ); return; }
+            if ( new_connection.socket_connection() && new_connection.connection_request( node_ip ) ) {
+                
+                open_connections.add( new_connection ); return; 
+            
+            }
         
         }
 

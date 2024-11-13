@@ -1,5 +1,6 @@
+import java.io.Serializable;
 
-public class IP {
+public class IP implements Serializable {
 
     private final String host;
     private final int port;

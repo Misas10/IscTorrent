@@ -21,19 +21,14 @@ public class Server {
       serverSocket = new ServerSocket(node.getPort());
       
       // Wait for a client to connect
-      while (true) {
+      while ( true ) {
 
-        clientSocket = serverSocket.accept();
-      
-        // After connection receive from "clientSocket"
-        // Add to connected sockets
-      
-        System.out.println("Connected in port: " + clientSocket.getPort());
-        ServerThread st = new ServerThread(clientSocket, node);
-      
-        st.start();
-    
+        clientSocket = serverSocket.accept(); new Connection( clientSocket ).start();
+
       }
+
+      // TODO: close the fucking socket maybe :)
+      // serverSocket.close();
 
     }
 }

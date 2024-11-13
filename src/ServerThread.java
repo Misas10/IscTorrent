@@ -26,16 +26,33 @@ public class ServerThread extends Thread {
         try {
             // Socket socket = node;
 
-            ObjectOutputStream outToClient = new ObjectOutputStream( clientSocket.getOutputStream() );
+            // ObjectOutputStream outToClient = new ObjectOutputStream( clientSocket.getOutputStream() );
             ObjectInputStream inFromClient = new ObjectInputStream( clientSocket.getInputStream() );
 
             Object object;
 
-            // if(inFromClient.available() != 0)
-
             while( ( object = inFromClient.readObject() ) != null ) {
 
-                String client_input_data = ( String ) object;
+                switch ( object ) {
+                    
+                    // Connection Request received
+                    case ConnectionRequest connection_request -> {}
+
+                    default -> {}
+
+                }
+
+            }
+
+        } catch (Exception e) { throw new RuntimeException(e); }
+
+    }
+
+}
+
+
+/*
+ * String client_input_data = ( String ) object;
                 String[] client_input_data_args = client_input_data.split( " " );
 
                 switch ( client_input_data_args[ 0 ] ) {
@@ -60,16 +77,4 @@ public class ServerThread extends Thread {
                     }
 
                 }
-
-            }
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-
-            /*System.err.println("Server Error: " + e.getMessage());
-            System.err.println("Localized: " + e.getLocalizedMessage());
-            System.err.println("Stack Trace: " + e.getStackTrace());
-            System.err.println("To String: " + e.toString());*/
-        }
-    }
-}
+ */
