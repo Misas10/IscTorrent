@@ -18,12 +18,14 @@ public class Server {
 
       System.out.println("Server Listening......");
 
-      serverSocket = new ServerSocket(node.getPort());
+      serverSocket = new ServerSocket( node.get_ip().get_port() );
       
       // Wait for a client to connect
       while ( true ) {
 
-        clientSocket = serverSocket.accept(); new Connection( clientSocket ).start();
+        clientSocket = serverSocket.accept(); Connection new_connection = new Connection( clientSocket );
+        
+        Node.get_instance().add_new_open_connection_to_list( new_connection ); new_connection.start();
 
       }
 

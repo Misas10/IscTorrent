@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /*
@@ -15,14 +16,20 @@ Implements a Serializable to be able to send Nodes tru the sockets
  */
 
 public class Node extends Thread implements Serializable {
-    // private int id;
-    private final IP node_ip;
-    // private final Server server;
-    private final List<Integer> connected_servers = new ArrayList<>(); // ??
 
-    private final List< Connection > open_connections = new ArrayList<>();
+    private static Node instance;
 
-    public Node(String host, int port) { node_ip = new IP( host, port ); }
+    private final IP node_ip; // Ip in used by this Node
+    private final List< Connection > open_connections = new ArrayList<>(); // List of open connections
+    private final DownloadTasksManager download_task_manager; // Manager for downloading files
+    private final Files_Manager files_manager; // Files manager
+
+    public Node( String host, int port ) { node_ip = new IP( host, port ); download_task_manager = new DownloadTasksManager(); files_manager = new Files_Manager( getFolderPath() ); files_manager.start(); }
+
+    static public boolean set_instance( String host, int port ) { if ( instance != null ) return false; instance = new Node( host, port ); return true; }
+
+    public static Node get_instance() { return instance; }
+
 
     @Override
     public void run() {
@@ -35,36 +42,26 @@ public class Node extends Thread implements Serializable {
 
     }
 
-    public int getPort() {
-        return node_ip.get_port();
-    }
+    public final IP get_ip() { return node_ip; } // No need for sync is final
 
-    public String getHost() {
-        return node_ip.get_host();
-    }
+    public final List< Connection > get_open_connections() { return open_connections; }
 
-    public void add(int node) {
-        this.connected_servers.add(node);
-    }
+    public final DownloadTasksManager get_download_task_manager() { return download_task_manager; }
+
+    public final Files_Manager get_files_manager() { return files_manager; }
 
     public void add_new_open_connection_to_list( final Connection open_connection ) 
-        { open_connections.add( open_connection ); }
-
-    public List<Integer> getConnected_servers() {
-      return connected_servers;
-    }
+        { synchronized( open_connections ) { open_connections.add( open_connection ); } }
 
     public void connect(String host, int port) {
 
         Connection new_connection = new Connection( new IP( host, port ) );
 
-        System.out.println("Connection attemp!");
-
         if( ! open_connections.contains( new_connection ) ) {
 
-            if ( new_connection.socket_connection() && new_connection.connection_request( node_ip ) ) {
-                
-                open_connections.add( new_connection ); return; 
+            if ( new_connection.socket_connection() && new_connection.connection_request( get_ip() ) ) {
+        
+                add_new_open_connection_to_list( new_connection ); new_connection.start(); return; 
             
             }
         
@@ -74,56 +71,18 @@ public class Node extends Thread implements Serializable {
         
     }
 
-    public void search(String text) { new WordSearchMessage(text, this); }
+    public void search( String text ) {
 
-    public String getFolderPath() { return Constants.FOLDER_PATH + (this.getPort() - 8080); }
+        WordSearchMessage word_search_message = new WordSearchMessage( text );
 
-    @Override
-    public String toString() {
-        return "Node {" +
-                "host='" + getHost() + '\'' +
-                ", port=" + getPort() +
-                '}';
-    }
+        synchronized( open_connections ) {
 
-    // It gets all the files from the default folder for this Node
-    public List<String> getFiles() {
+            for( Connection connection : open_connections ) connection.send_data( word_search_message );
 
-        File folder = new File(getFolderPath());
-        File[] files = folder.listFiles();
-
-        if(files == null)
-
-            return null;
-
-        List<String> f = new ArrayList<>();
-
-        for(File file : files)
-            f.add(file.getName());
-
-        return f;
+        }
 
     }
 
-    // For testing
-    public static void main(String[] args) {
-
-        Node node = new Node("localhost", 8081);
-        System.out.println(System.getProperty("user.dir") + node.getFolderPath());
-        System.out.println(node.getFolderPath());
-
-        System.out.println(node.getFiles());
-
-        File folder = new File("./folders");
-        File[] files = folder.listFiles();
-
-        List<String> f = new ArrayList<>();
-
-        assert files != null;
-        for(File file : files)
-            f.add(file.getName());
-
-        System.out.println(f);
-    }
+    public String getFolderPath() { return Constants.FOLDER_PATH + ( get_ip().get_port() - 8080) + "/"; }
 
 }

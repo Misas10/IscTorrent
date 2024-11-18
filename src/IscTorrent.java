@@ -15,9 +15,10 @@ public class IscTorrent {
         System.out.println("Port: " + port);
 
         // Create a node
-        Node node = new Node(host, port);
+        if( ! Node.set_instance( host, port ) ) return;
+        
+        Node node = Node.get_instance();
         node.start();
-
 
         System.out.println("\nNew node: " + node);
 

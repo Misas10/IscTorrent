@@ -36,7 +36,7 @@ public class ServerThread extends Thread {
                 switch ( object ) {
                     
                     // Connection Request received
-                    case ConnectionRequest connection_request -> {}
+                    case NewConnectionRequest connection_request -> {}
 
                     default -> {}
 

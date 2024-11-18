@@ -1,21 +1,51 @@
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Connection extends Thread {
 
   public enum Connection_State { FULL_CONNECTED, PARTIAL_CONNECTED, NOT_CONNECTED };
 
+  private Connection_State state = Connection_State.NOT_CONNECTED;
+  private ObjectOutputStream output_peer;
+  private ObjectInputStream input_peer;
   private Socket connection_socket;
-  private Connection_State state;
   private IP ip;
 
   public Connection( final IP ip ) { this.ip = ip; state = Connection_State.NOT_CONNECTED; }
   
-  public Connection( final Socket connection_socket ) { this.connection_socket = connection_socket; state = Connection_State.PARTIAL_CONNECTED; }
+  public Connection( final Socket connection_socket ) { 
+  
+    try {
 
-  public Connection( final IP ip, final Socket connection_socket ) 
-    { this.ip = ip; this.connection_socket = connection_socket; state = Connection_State.FULL_CONNECTED; }
+      this.connection_socket = connection_socket;  
+
+      output_peer = new ObjectOutputStream( get_connection_socket().getOutputStream() );
+      input_peer = new ObjectInputStream( get_connection_socket().getInputStream() );
+      
+      state = Connection_State.PARTIAL_CONNECTED;
+
+    } catch ( Exception e ) { System.out.println(e); }
+  
+  }
+
+  public Connection( final IP ip, final Socket connection_socket ) { 
+    
+    try {
+
+      this.ip = ip; this.connection_socket = connection_socket; 
+      output_peer = new ObjectOutputStream( get_connection_socket().getOutputStream() );
+      input_peer = new ObjectInputStream( get_connection_socket().getInputStream() );
+      
+      state = Connection_State.FULL_CONNECTED;
+
+    } catch ( Exception e ) { System.out.println(e); }
+  
+  }
 
   @Override
   public boolean equals( final Object other ) {
@@ -40,7 +70,12 @@ public class Connection extends Thread {
 
   public final Connection_State get_connection_state() { return state; }
 
+  public synchronized void set_connection_state( final Connection_State state ) { this.state = state; } 
+
   public synchronized final IP get_ip() { return ip; }
+
+  public synchronized final boolean set_ip( final IP ip ) 
+    { if( state != Connection_State.PARTIAL_CONNECTED ) return false; this.ip = ip; return true; }
 
   // Will try to establish a socket connection
   // with target ip information
@@ -52,6 +87,9 @@ public class Connection extends Thread {
 
       // Open a socket connection with "host:port"
       connection_socket = new Socket( get_ip().get_host() , get_ip().get_port() );
+
+      output_peer = new ObjectOutputStream( get_connection_socket().getOutputStream() );
+      input_peer = new ObjectInputStream( get_connection_socket().getInputStream() );
 
       state = Connection_State.FULL_CONNECTED; return true;
     
@@ -67,16 +105,11 @@ public class Connection extends Thread {
 
     try {
 
-      // Buffers from input and ouput communication to the connection
-      ObjectOutputStream peer_output = new ObjectOutputStream( connection_socket.getOutputStream() );
-      // ObjectInputStream inFromServer = new ObjectInputStream( connection_socket.getInputStream() );
-
       // Object to hold the request connection
       // data that will be sent to the peer
-      ConnectionRequest connection_request = new ConnectionRequest( node_ip );
+      NewConnectionRequest connection_request = new NewConnectionRequest( node_ip );
 
-      // Send the connection request
-      peer_output.writeObject( connection_request );
+      send_data( connection_request );
 
       // TODO: wait for peer response to 
       // the connection request
@@ -89,12 +122,19 @@ public class Connection extends Thread {
 
   }
 
+  public synchronized boolean send_data( Object object_data ) {
+
+    try { output_peer.writeObject( object_data ); return true; } 
+    catch ( Exception e ) { System.out.println(e); }
+
+    return false;
+    
+  }
+
   @Override
   public void run() {
 
     try {
-
-      ObjectInputStream input_peer = new ObjectInputStream( connection_socket.getInputStream() );
 
       Object object;
 
@@ -103,23 +143,100 @@ public class Connection extends Thread {
           switch ( object ) {
               
               // Connection Request received
-              case ConnectionRequest connection_request -> {
+              case NewConnectionRequest connection_request -> {
 
                 // Checks if the connection is at 
                 // partial connected state
-                if( get_connection_state() != Connection_State.PARTIAL_CONNECTED ) { break; } // Implement something more useful TODO:
+                if( get_connection_state() != Connection_State.PARTIAL_CONNECTED ) { System.out.println("Connection not partial"); return; } // Implement something more useful TODO:
                 
-                // Adds the new node and information about it
+                if( ! set_ip( connection_request.get_node_ip() ) ) { System.out.println("IP setting error !! TODO:"); return; }// TODO:
+
+                set_connection_state( Connection_State.FULL_CONNECTED );
+ 
+              }
+
+              // Word Search Request received
+              case WordSearchMessage word_search_message -> {
+
+                List< File_Data > list_files = Node.get_instance().get_files_manager().find_files_by_keyword_name( word_search_message.get_key_word() );
+                List< FileSearchResult > list_file_search_result = new ArrayList<>();
+                
+                for( File_Data file : list_files )
+
+                  list_file_search_result.add( file.convert_to_file_search_result( word_search_message, Node.get_instance().get_ip() ) );
+
+                send_data( list_file_search_result );
 
               }
 
+              // Receives a list of something
+              case List< ? > list -> {
+
+                // Empty list
+                if( list.size() == 0 ) return;
+
+                // Check which type is the list of
+                switch ( list.get( 0 ) ) {
+
+                  // List of File Search Results
+                  case FileSearchResult ignore -> {
+
+                    // Need to be this way so the compiler dont warn me agains my unsafe matters
+                    List< FileSearchResult > list_file_search_result = 
+                      list.stream()
+                        .filter( FileSearchResult.class::isInstance )
+                          .map( FileSearchResult.class::cast )
+                            .collect( Collectors.toList() );
+
+                    FileSearchResult file_search_result = list_file_search_result.get( 0 );
+
+                    Node.get_instance().get_download_task_manager().add_new_download_task(
+
+                      file_search_result.get_file_name(),
+                      file_search_result.get_hash(),
+                      ( int ) file_search_result.get_file_size(),
+                      Node.get_instance().get_open_connections()
+
+                    );
+
+                  }
+
+                  default -> { System.out.println("Nothing"); }
+                    
+                }
+
+              }
+
+              case FileBlockRequestMessage file_block_request_message -> {
+
+                final byte[] file_block_data = Node.get_instance().get_files_manager().get_file_block( 
+                
+                  file_block_request_message.get_file_hash() , 
+                  file_block_request_message.get_offset(), 
+                  file_block_request_message.get_length() 
+                
+                );
+
+                final FileBlockAnswerMessage file_block_answer_message = new FileBlockAnswerMessage( file_block_request_message.get_file_hash(), file_block_data );
+
+                send_data( file_block_answer_message );
+
+              }
+              
+              case FileBlockAnswerMessage file_block_answer_message -> {
+
+                Node.get_instance().get_download_task_manager().new_file_block_answer_received( this, file_block_answer_message );
+
+              }
               default -> { System.out.println("Nothing"); }
 
           }
 
       }
 
-    } catch (Exception e) { throw new RuntimeException(e); }
+    } catch (Exception e) { System.out.println("Connection closed"); }
+
+    System.out.println("Saiu");
 
   }
 
