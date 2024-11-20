@@ -111,8 +111,8 @@ public class Connection extends Thread {
 
       send_data( connection_request );
 
-      // TODO: wait for peer response to 
-      // the connection request
+      // TODO: wait for peer response to the connection request
+      // while();
 
       return true;
 
@@ -152,7 +152,10 @@ public class Connection extends Thread {
                 if( ! set_ip( connection_request.get_node_ip() ) ) { System.out.println("IP setting error !! TODO:"); return; }// TODO:
 
                 set_connection_state( Connection_State.FULL_CONNECTED );
- 
+
+                System.out.println( connection_request.get_node_ip() + " connected!");
+                System.out.println(Node.get_instance().get_open_connections().get(0));
+
               }
 
               // Word Search Request received
@@ -161,10 +164,9 @@ public class Connection extends Thread {
                 List< File_Data > list_files = Node.get_instance().get_files_manager().find_files_by_keyword_name( word_search_message.get_key_word() );
                 List< FileSearchResult > list_file_search_result = new ArrayList<>();
                 
-                for( File_Data file : list_files )
-
-                  list_file_search_result.add( file.convert_to_file_search_result( word_search_message, Node.get_instance().get_ip() ) );
-
+                for( File_Data file : list_files ) {
+                  list_file_search_result.add(file.convert_to_file_search_result(word_search_message, Node.get_instance().get_ip()));
+                }
                 send_data( list_file_search_result );
 
               }
@@ -173,7 +175,7 @@ public class Connection extends Thread {
               case List< ? > list -> {
 
                 // Empty list
-                if( list.size() == 0 ) return;
+                if(list.isEmpty()) return;
 
                 // Check which type is the list of
                 switch ( list.get( 0 ) ) {
@@ -186,17 +188,24 @@ public class Connection extends Thread {
                       list.stream()
                         .filter( FileSearchResult.class::isInstance )
                           .map( FileSearchResult.class::cast )
-                            .collect( Collectors.toList() );
+                            .toList();
 
                     FileSearchResult file_search_result = list_file_search_result.get( 0 );
 
-                    Node.get_instance().get_download_task_manager().add_new_download_task(
+                    List<String> names_list = new ArrayList<>();
 
+                    for (FileSearchResult file : list_file_search_result) {
+                      System.out.println(file.get_file_name());
+                      names_list.add(file.get_file_name());
+                    }
+
+                    Gui.update_list(names_list.toArray(new String[0]));
+
+                    Node.get_instance().get_download_task_manager().add_new_download_task(
                       file_search_result.get_file_name(),
                       file_search_result.get_hash(),
                       ( int ) file_search_result.get_file_size(),
                       Node.get_instance().get_open_connections()
-
                     );
 
                   }
@@ -228,7 +237,7 @@ public class Connection extends Thread {
                 Node.get_instance().get_download_task_manager().new_file_block_answer_received( this, file_block_answer_message );
 
               }
-              default -> { System.out.println("Nothing"); }
+              default -> System.out.println("Command: " + object);
 
           }
 
@@ -240,4 +249,11 @@ public class Connection extends Thread {
 
   }
 
+  @Override
+  public String toString() {
+    return "Connection{" +
+            "state=" + state +
+            ", ip=" + ip +
+            '}';
+  }
 }

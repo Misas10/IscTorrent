@@ -61,7 +61,10 @@ public class Node extends Thread implements Serializable {
 
             if ( new_connection.socket_connection() && new_connection.connection_request( get_ip() ) ) {
         
-                add_new_open_connection_to_list( new_connection ); new_connection.start(); return; 
+                add_new_open_connection_to_list( new_connection ); new_connection.start();
+                System.out.println(new_connection.get_ip() + " connected!");
+                System.out.println(get_open_connections().get(0));
+                return;
             
             }
         
@@ -85,4 +88,13 @@ public class Node extends Thread implements Serializable {
 
     public String getFolderPath() { return Constants.FOLDER_PATH + ( get_ip().get_port() - 8080) + "/"; }
 
+    public void update_gui(List <FileSearchResult> file_search_results) {}
+
+    @Override
+    public String toString() {
+        return "Node [Address="
+                + this.node_ip.get_host() +
+                ", port= " + this.node_ip.get_port() +
+                "]";
+    }
 }

@@ -9,9 +9,12 @@ ALL the GUI from the app is handle in this class
 
 public class Gui {
     private final Node node;
+    private static JList<String> result_list = new JList<>();
 
-    public Gui(Node node) {
-        this.node = node;
+    private static final JFrame frame = new JFrame();
+
+    public Gui() {
+        this.node = Node.get_instance();
 
         // Creating instance of JFrame
         JFrame frame = new JFrame();
@@ -21,7 +24,7 @@ public class Gui {
 
         JTextField text_field = new JTextField();
 
-        JList<String> result_list = new JList<String>();
+        // JList<String> result_list = new JList<String>();
         result_list.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 
         // Creating the buttons
@@ -63,6 +66,7 @@ public class Gui {
         search_button.addActionListener( new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
+              System.out.println("Searching: " + text_field.getText());
               node.search(text_field.getText());
           }
         });
@@ -70,8 +74,6 @@ public class Gui {
     }
 
     JFrame set_connect_node_frame () {
-
-        JFrame frame = new JFrame();
 
         frame.setLayout(new GridLayout(1, 6));
         frame.setSize(200, 100);
@@ -110,5 +112,14 @@ public class Gui {
         });
 
         return frame;
+    }
+
+    public static void update_list(String[] new_list) {
+        DefaultListModel<String> dlm = new DefaultListModel<>();
+
+        for (int i = 0; i < new_list.length; i++)
+            dlm.add(i, new_list[i]);
+
+        result_list.setModel(dlm);
     }
 }

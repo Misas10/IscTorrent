@@ -30,6 +30,6 @@ public class IscTorrent {
             System.out.println("Error creating the folder: " + e.getMessage());
         }
 
-        new Gui(node);
+        new Gui();
     }
 }
