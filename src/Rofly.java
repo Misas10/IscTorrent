@@ -18,9 +18,10 @@ public class Rofly {
     
     public final List< Connection > get_connections() { return connections; }
 
-    public void add_new_connection( final Connection new_connection ) { synchronized( connections ) { connections.add( new_connection ); }}
+    public void add_new_connection( final Connection new_connection ) { synchronized( connections ) 
+        { if ( ! connections.contains( new_connection ) ) connections.add( new_connection ); }}
 
     @Override
-    public String toString() { return get_file_name(); }
+    public String toString() { return get_file_name() + "< " + connections.size() + " >"; }
 
 }

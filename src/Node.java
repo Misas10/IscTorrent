@@ -121,6 +121,17 @@ public class Node extends Thread implements Serializable {
 
     }
 
+    public void new_download_request( final Rofly new_download_request ) {
+
+        download_task_manager.add_new_download_task(
+            new_download_request.get_file_name(),
+            new_download_request.get_hash(),
+            ( int ) new_download_request.get_file_size(),
+            new_download_request.get_connections()
+        );
+
+    }
+
     public void add_new_file_search( final FileSearchResult file_search_result ) {
 
         System.out.println(file_search_result.get_node_ip().get_port());
@@ -131,9 +142,14 @@ public class Node extends Thread implements Serializable {
 
             for( Rofly file : files_search_results ) {
 
+                System.out.println("File name in array: " + file.get_file_name());
                 if( Arrays.equals( file.get_hash(), file_search_result.get_hash() ) ) {
 
+                    System.out.println("Same file occur");
+
                     file.add_new_connection( connection_file_search_result );
+
+                    Gui.update_list( files_search_results );
 
                     return;
 
@@ -141,14 +157,19 @@ public class Node extends Thread implements Serializable {
 
             }
 
+            List< Connection > connections = new ArrayList<>();
+            connections.add( connection_file_search_result );
+
             files_search_results.add(
                 new Rofly( 
                     file_search_result.get_hash(), 
                     file_search_result.get_file_size(), 
                     file_search_result.get_file_name(), 
-                    List.of( connection_file_search_result )
+                    connections
                 )
             );
+
+            System.out.println("List size: " + files_search_results.size() );
 
             Gui.update_list( files_search_results );
 

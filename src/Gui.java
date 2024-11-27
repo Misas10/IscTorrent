@@ -72,6 +72,16 @@ public class Gui {
           }
         });
 
+        download_button.addActionListener( new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                for ( Rofly selected_download : result_list.getSelectedValuesList() )
+
+                    Node.get_instance().new_download_request( selected_download );
+
+            }
+          });
     }
 
     JFrame set_connect_node_frame () {

@@ -255,7 +255,7 @@ public class Connection extends Thread {
 
       }
 
-    } catch (Exception e) { System.out.println("Connection closed"); }
+    } catch (Exception e) {  System.out.println(e);System.out.println("Connection closed"); }
 
     System.out.println("Saiu");
 
