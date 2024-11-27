@@ -2,23 +2,22 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.*;
+import java.util.List;
 
 /*
 ALL the GUI from the app is handle in this class
  */
 
 public class Gui {
-    private final Node node;
-    private static JList<String> result_list = new JList<>();
+    private static JList< Rofly > result_list = new JList<>();
 
     private static final JFrame frame = new JFrame();
 
     public Gui() {
-        this.node = Node.get_instance();
 
         // Creating instance of JFrame
         JFrame frame = new JFrame();
-        frame.setTitle(node.toString());
+        frame.setTitle(Node.get_instance().toString());
 
         JLabel label = new JLabel("Texto a procurar:");
 
@@ -69,7 +68,7 @@ public class Gui {
         search_button.addActionListener( new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-              node.search(text_field.getText());
+              Node.get_instance().search(text_field.getText());
           }
         });
 
@@ -110,22 +109,23 @@ public class Gui {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if(!host.getText().isEmpty() && !port.getText().isEmpty())
-                    node.connect(host.getText(), Integer.parseInt(port.getText()));
+                    Node.get_instance().connect(host.getText(), Integer.parseInt(port.getText()));
             }
         });
 
         return frame;
     }
 
-    public static void update_list(String[] new_list) {
-        System.out.println(new_list.length);
+    public static void update_list( final List< Rofly > new_list ) {
 
-        DefaultListModel<String> dlm = new DefaultListModel<>();
+        DefaultListModel< Rofly > dlm = new DefaultListModel<>();
 
-        for (int i = 0; i < new_list.length; i++)
-            dlm.add(i, new_list[i]);
+        for (int i = 0; i < new_list.size(); i++)
+            dlm.add( i, new_list.get( i ) );
 
         result_list.setModel(dlm);
+        
+        // System.out.println(new_list.length);
     }
 
     public static void showInfo(String msg) {

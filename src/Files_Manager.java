@@ -46,6 +46,8 @@ public class Files_Manager extends Thread {
 
                 if ( ! file_data.is_valid() || files.contains( file_data ) ) continue;
 
+                System.out.println("New file added");
+
                 synchronized( files ) { files.add( file_data ); }
 
             } else if ( file.isDirectory() ) {} // TODO: Recursive call

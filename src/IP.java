@@ -18,6 +18,21 @@ public class IP implements Serializable {
 
     }
 
+
+    @Override
+    public boolean equals( final Object other ) {
+
+    if ( this == other ) return true; // Same object in memory
+    if ( other == null ) return false; // Null object given
+    if ( other.getClass() != getClass() ) return false; // Not an object from type Connection given
+
+    // Convert object into Connection type
+    IP other_ip = ( IP ) other;
+
+    return other_ip.get_host().equals( get_host() ) && ( other_ip.get_port() == get_port() );
+
+    }
+
     public final String get_host() { return host; }
 
     public final int get_port() { return port; }

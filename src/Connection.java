@@ -60,7 +60,7 @@ public class Connection extends Thread {
     IP other_ip = other_connection.get_ip();
     IP this_ip = get_ip();
 
-    return other_ip.get_host().equals( this_ip.get_host() ) && ( other_ip.get_port() == this_ip.get_port() );
+    return other_ip.equals( this_ip );
 
   }
 
@@ -199,23 +199,26 @@ public class Connection extends Thread {
                           .map( FileSearchResult.class::cast )
                             .toList();
 
-                    FileSearchResult file_search_result = list_file_search_result.get( 0 );
+                    for ( FileSearchResult file_search_result : list_file_search_result )
+                      Node.get_instance().add_new_file_search( file_search_result );
 
-                    List<String> names_list = new ArrayList<>();
+                    // FileSearchResult file_search_result = list_file_search_result.get( 0 );
 
-                    for (FileSearchResult file : list_file_search_result) {
-                      System.out.println(file.get_file_name());
-                      names_list.add(file.get_file_name() + "<" + file.get_node_ip() + ">");
-                    }
+                    // List<String> names_list = new ArrayList<>();
 
-                    Gui.update_list(names_list.toArray(new String[0]));
+                    // for (FileSearchResult file : list_file_search_result) {
+                    //   System.out.println(file.get_file_name());
+                    //   names_list.add(file.get_file_name() + "<" + file.get_node_ip() + ">");
+                    // }
 
-                    /*Node.get_instance().get_download_task_manager().add_new_download_task(
-                      file_search_result.get_file_name(),
-                      file_search_result.get_hash(),
-                      ( int ) file_search_result.get_file_size(),
-                      Node.get_instance().get_open_connections()
-                    );*/
+                    // Gui.update_list(names_list.toArray(new String[0]));
+
+                    // /*Node.get_instance().get_download_task_manager().add_new_download_task(
+                    //   file_search_result.get_file_name(),
+                    //   file_search_result.get_hash(),
+                    //   ( int ) file_search_result.get_file_size(),
+                    //   Node.get_instance().get_open_connections()
+                    // );*/
 
                   }
 
@@ -256,6 +259,8 @@ public class Connection extends Thread {
 
     System.out.println("Saiu");
 
+    Node.get_instance().remove_open_connection_to_list( this );
+    
   }
 
   @Override

@@ -21,6 +21,7 @@ public class Node extends Thread implements Serializable {
 
     private final IP node_ip; // Ip in used by this Node
     private final List< Connection > open_connections = new ArrayList<>(); // List of open connections
+    private final List< Rofly > files_search_results = new ArrayList<>(); // Data about files that were searched
     private final DownloadTasksManager download_task_manager; // Manager for downloading files
     private final Files_Manager files_manager; // Files manager
 
@@ -50,8 +51,30 @@ public class Node extends Thread implements Serializable {
 
     public final Files_Manager get_files_manager() { return files_manager; }
 
+    public void remove_open_connection_to_list( final Connection connection ) 
+        { synchronized( open_connections ) { open_connections.remove( connection ); } }
+
     public void add_new_open_connection_to_list( final Connection open_connection ) 
         { synchronized( open_connections ) { open_connections.add( open_connection ); } }
+
+    public Connection get_connection_by_ip( final IP connection_ip ) {
+
+        synchronized( open_connections ) {
+
+            for( Connection connection : open_connections ) {
+
+                System.out.println(connection.get_ip().get_host() + " " + connection.get_ip().get_port());
+                System.out.println(connection_ip.get_host() + " " + connection_ip.get_port());
+                System.out.println("----------SEARCH-------------------");
+                if( connection.get_ip().equals( connection_ip ) ) return connection;
+
+            }
+
+        }
+
+        return null;
+
+    }
 
     public void connect(String host, int port) {
 
@@ -93,6 +116,41 @@ public class Node extends Thread implements Serializable {
         synchronized( open_connections ) {
 
             for( Connection connection : open_connections ) connection.send_data( word_search_message );
+
+        }
+
+    }
+
+    public void add_new_file_search( final FileSearchResult file_search_result ) {
+
+        System.out.println(file_search_result.get_node_ip().get_port());
+        Connection connection_file_search_result = get_connection_by_ip( file_search_result.get_node_ip() );
+        if( connection_file_search_result == null ) { System.out.println("File search received from not connected connection error"); return; } // Connection is no longer available
+
+        synchronized( files_search_results ) {
+
+            for( Rofly file : files_search_results ) {
+
+                if( Arrays.equals( file.get_hash(), file_search_result.get_hash() ) ) {
+
+                    file.add_new_connection( connection_file_search_result );
+
+                    return;
+
+                }
+
+            }
+
+            files_search_results.add(
+                new Rofly( 
+                    file_search_result.get_hash(), 
+                    file_search_result.get_file_size(), 
+                    file_search_result.get_file_name(), 
+                    List.of( connection_file_search_result )
+                )
+            );
+
+            Gui.update_list( files_search_results );
 
         }
 
