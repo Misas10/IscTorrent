@@ -78,6 +78,18 @@ public class Node extends Thread implements Serializable {
 
         WordSearchMessage word_search_message = new WordSearchMessage( text );
 
+        if(word_search_message.get_key_word().isEmpty()){
+            Gui.showInfo("The search is empty, try again!");
+            return;
+        }
+
+        if(open_connections.isEmpty()){
+            Gui.showInfo("There's no nodes connected, try connecting to one!");
+            return;
+        }
+
+        System.out.println("Searching: " + word_search_message.get_key_word());
+
         synchronized( open_connections ) {
 
             for( Connection connection : open_connections ) connection.send_data( word_search_message );
@@ -87,8 +99,6 @@ public class Node extends Thread implements Serializable {
     }
 
     public String getFolderPath() { return Constants.FOLDER_PATH + ( get_ip().get_port() - 8080) + "/"; }
-
-    public void update_gui(List <FileSearchResult> file_search_results) {}
 
     @Override
     public String toString() {

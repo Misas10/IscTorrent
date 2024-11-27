@@ -42,7 +42,7 @@ public class Download_Task extends Thread {
     private final String file_name;
     private final List< Data_Block > blocks = new ArrayList<>();
     private final byte[] file_hash;
-    private byte[] file_data;
+    private final byte[] file_data;
     
     public Download_Task( final String file_name, final byte[] file_hash, final int file_size, final List< Connection > connections ) { 
         

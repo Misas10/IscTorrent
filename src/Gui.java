@@ -49,6 +49,9 @@ public class Gui {
         c.add(result_list, BorderLayout.CENTER);
         c.add(buttons_container, BorderLayout.EAST);
 
+
+        // result_list.addListSelectionListener();
+
         // making the frame visible
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -66,7 +69,6 @@ public class Gui {
         search_button.addActionListener( new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-              System.out.println("Searching: " + text_field.getText());
               node.search(text_field.getText());
           }
         });
@@ -95,6 +97,7 @@ public class Gui {
         frame.add(cancel_button);
         frame.add(ok_button);
 
+
         cancel_button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -115,11 +118,17 @@ public class Gui {
     }
 
     public static void update_list(String[] new_list) {
+        System.out.println(new_list.length);
+
         DefaultListModel<String> dlm = new DefaultListModel<>();
 
         for (int i = 0; i < new_list.length; i++)
             dlm.add(i, new_list[i]);
 
         result_list.setModel(dlm);
+    }
+
+    public static void showInfo(String msg) {
+            JOptionPane.showMessageDialog(frame, msg);
     }
 }

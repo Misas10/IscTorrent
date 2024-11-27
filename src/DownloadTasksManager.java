@@ -4,7 +4,7 @@ import java.util.List;
 
 public class DownloadTasksManager {
 
-    private List< Download_Task > tasks;
+    private final List< Download_Task > tasks;
 
     public DownloadTasksManager() { tasks = new ArrayList<>(); }
 

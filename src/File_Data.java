@@ -1,10 +1,7 @@
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.util.Arrays;
-import java.util.Scanner;
-import java.io.File;  // Import the File class
 
 public class File_Data {
 
@@ -24,7 +21,7 @@ public class File_Data {
         hash = MessageDigest.getInstance( "SHA-256" ).digest( data );
         file_size = data.length;
 
-      } catch (Exception e) {}
+      } catch (Exception ignored) {}
 
     }
 

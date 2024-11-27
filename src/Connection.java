@@ -160,8 +160,17 @@ public class Connection extends Thread {
 
               // Word Search Request received
               case WordSearchMessage word_search_message -> {
+                System.out.println("Got searching command!");
 
                 List< File_Data > list_files = Node.get_instance().get_files_manager().find_files_by_keyword_name( word_search_message.get_key_word() );
+
+                // If all connected nodes do not have the file
+                if(list_files.isEmpty()) {
+                  System.out.println("The file was not found in all connected nodes!");
+                  Gui.showInfo("File not found!");
+                  break;
+                }
+
                 List< FileSearchResult > list_file_search_result = new ArrayList<>();
                 
                 for( File_Data file : list_files ) {
@@ -183,7 +192,7 @@ public class Connection extends Thread {
                   // List of File Search Results
                   case FileSearchResult ignore -> {
 
-                    // Need to be this way so the compiler dont warn me agains my unsafe matters
+                    // Need to be this way so the compiler don't warn me agains my unsafe matters
                     List< FileSearchResult > list_file_search_result = 
                       list.stream()
                         .filter( FileSearchResult.class::isInstance )
@@ -196,17 +205,17 @@ public class Connection extends Thread {
 
                     for (FileSearchResult file : list_file_search_result) {
                       System.out.println(file.get_file_name());
-                      names_list.add(file.get_file_name());
+                      names_list.add(file.get_file_name() + "<" + file.get_node_ip() + ">");
                     }
 
                     Gui.update_list(names_list.toArray(new String[0]));
 
-                    Node.get_instance().get_download_task_manager().add_new_download_task(
+                    /*Node.get_instance().get_download_task_manager().add_new_download_task(
                       file_search_result.get_file_name(),
                       file_search_result.get_hash(),
                       ( int ) file_search_result.get_file_size(),
                       Node.get_instance().get_open_connections()
-                    );
+                    );*/
 
                   }
 
