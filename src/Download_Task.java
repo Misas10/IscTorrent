@@ -43,13 +43,16 @@ public class Download_Task extends Thread {
     private final List< Data_Block > blocks = new ArrayList<>();
     private final byte[] file_hash;
     private final byte[] file_data;
+    private final long start_time;
     
     public Download_Task( final String file_name, final byte[] file_hash, final int file_size, final List< Connection > connections ) { 
+
+        start_time = System.currentTimeMillis();
         
         this.file_name = file_name; file_data = new byte[ ( int ) file_size ]; this.file_hash = file_hash; set_data_blocks(); 
         
         for( Connection connection : connections ) send_new_block_request( connection ); 
-    
+
     }
 
     private void set_data_blocks() {
@@ -205,6 +208,12 @@ public class Download_Task extends Thread {
         set_file_data( data_block_target.get_offset(), data_block_target.get_length(), file_block_answer_message.get_data() );        
 
         data_block_target.set_status( Data_Block.Data_Block_Status.RESOLVED ); 
+
+        if( is_completed() ) {
+
+            Gui.showInfo( "Tempo total: " + ( ( double ) System.currentTimeMillis() - start_time ) / 1000 + " segundos");
+
+        }
 
         send_new_block_request( connection );
         
