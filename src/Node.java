@@ -85,8 +85,7 @@ public class Node extends Thread implements Serializable {
             if ( new_connection.socket_connection() && new_connection.connection_request( get_ip() ) ) {
         
                 add_new_open_connection_to_list( new_connection ); new_connection.start();
-                System.out.println(new_connection.get_ip() + " connected!");
-                System.out.println(get_open_connections().get(0));
+
                 return;
             
             }
@@ -132,9 +131,20 @@ public class Node extends Thread implements Serializable {
 
     }
 
+    public void clear_file_search_list() {
+
+        synchronized( files_search_results ) {
+        
+            files_search_results.clear();
+
+             Gui.update_list(files_search_results);
+        
+        }
+
+    }
+
     public void add_new_file_search( final FileSearchResult file_search_result ) {
 
-        System.out.println(file_search_result.get_node_ip().get_port());
         Connection connection_file_search_result = get_connection_by_ip( file_search_result.get_node_ip() );
         if( connection_file_search_result == null ) { System.out.println("File search received from not connected connection error"); return; } // Connection is no longer available
 
@@ -142,10 +152,7 @@ public class Node extends Thread implements Serializable {
 
             for( Rofly file : files_search_results ) {
 
-                System.out.println("File name in array: " + file.get_file_name());
                 if( Arrays.equals( file.get_hash(), file_search_result.get_hash() ) ) {
-
-                    System.out.println("Same file occur");
 
                     file.add_new_connection( connection_file_search_result );
 
@@ -168,8 +175,6 @@ public class Node extends Thread implements Serializable {
                     connections
                 )
             );
-
-            System.out.println("List size: " + files_search_results.size() );
 
             Gui.update_list( files_search_results );
 
