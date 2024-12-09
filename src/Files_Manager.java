@@ -10,7 +10,7 @@ public class Files_Manager extends Thread {
     private final List< File_Data > files = new ArrayList<>(); // Files this node have access to
     private final String dir_path;
 
-    public Files_Manager( final String dir_path ) { this.dir_path = dir_path; set_files(); }
+    public Files_Manager( final String dir_path ) { this.dir_path = dir_path; set_files( dir_path ); }
 
     public final String get_dir_path() { return dir_path; }
 
@@ -24,14 +24,14 @@ public class Files_Manager extends Thread {
             try { Thread.sleep( loop_milli ); } 
             catch( Exception e ) { System.out.println("File manager check error, leaving"); return; }
 
-            set_files();
+            synchronized( files ) { files.clear(); set_files( dir_path ); }            
 
         }
 
     }
 
     // It gets all the files from the default folder 
-    private void set_files() {
+    private void set_files( final String dir_path ) {
 
         File folder = new File( dir_path );
 
@@ -51,7 +51,7 @@ public class Files_Manager extends Thread {
 
         if( files == null ) return;
 
-        for( File file : filesList ) { // TODO: remove files if they are removed from dir
+        for( File file : filesList ) { 
             
             if ( file.isFile() ) {
 
@@ -59,11 +59,9 @@ public class Files_Manager extends Thread {
 
                 if ( ! file_data.is_valid() || files.contains( file_data ) ) continue;
 
-                System.out.println("New file added");
-
                 synchronized( files ) { files.add( file_data ); }
 
-            } else if ( file.isDirectory() ) {} // TODO: Recursive call
+            } else if ( file.isDirectory() ) set_files( file.getAbsolutePath() );
         
         }
 

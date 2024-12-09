@@ -68,7 +68,10 @@ public class Gui {
         search_button.addActionListener( new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
+                Node.get_instance().clear_file_search_list();
+
               Node.get_instance().search(text_field.getText());
+
           }
         });
 
@@ -130,8 +133,11 @@ public class Gui {
 
         DefaultListModel< Rofly > dlm = new DefaultListModel<>();
 
-        for (int i = 0; i < new_list.size(); i++)
+        for (int i = 0; i < new_list.size(); i++) {
+            System.out.println(new_list.get(i).get_file_name());
             dlm.add( i, new_list.get( i ) );
+
+        }
 
         result_list.setModel(dlm);
         

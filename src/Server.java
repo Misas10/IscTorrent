@@ -24,7 +24,7 @@ public class Server {
       while ( true ) {
 
         clientSocket = serverSocket.accept(); Connection new_connection = new Connection( clientSocket );
-        
+
         Node.get_instance().add_new_open_connection_to_list( new_connection ); new_connection.start();
 
       }

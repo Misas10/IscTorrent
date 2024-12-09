@@ -111,9 +111,6 @@ public class Connection extends Thread {
 
       send_data( connection_request );
 
-      // TODO: wait for peer response to the connection request
-      // while();
-
       return true;
 
     } catch ( Exception e ) { System.out.println(e); }
@@ -145,6 +142,8 @@ public class Connection extends Thread {
               // Connection Request received
               case NewConnectionRequest connection_request -> {
 
+                System.out.println("Request received");
+
                 // Checks if the connection is at 
                 // partial connected state
                 if( get_connection_state() != Connection_State.PARTIAL_CONNECTED ) { System.out.println("Connection not partial"); return; } // Implement something more useful TODO:
@@ -153,14 +152,12 @@ public class Connection extends Thread {
 
                 set_connection_state( Connection_State.FULL_CONNECTED );
 
-                System.out.println( connection_request.get_node_ip() + " connected!");
-                System.out.println(Node.get_instance().get_open_connections().get(0));
+                Gui.showInfo("New connection request accepted");
 
               }
 
               // Word Search Request received
               case WordSearchMessage word_search_message -> {
-                System.out.println("Got searching command!");
 
                 List< File_Data > list_files = Node.get_instance().get_files_manager().find_files_by_keyword_name( word_search_message.get_key_word() );
 
@@ -176,6 +173,7 @@ public class Connection extends Thread {
                 for( File_Data file : list_files ) {
                   list_file_search_result.add(file.convert_to_file_search_result(word_search_message, Node.get_instance().get_ip()));
                 }
+
                 send_data( list_file_search_result );
 
               }
@@ -201,24 +199,6 @@ public class Connection extends Thread {
 
                     for ( FileSearchResult file_search_result : list_file_search_result )
                       Node.get_instance().add_new_file_search( file_search_result );
-
-                    // FileSearchResult file_search_result = list_file_search_result.get( 0 );
-
-                    // List<String> names_list = new ArrayList<>();
-
-                    // for (FileSearchResult file : list_file_search_result) {
-                    //   System.out.println(file.get_file_name());
-                    //   names_list.add(file.get_file_name() + "<" + file.get_node_ip() + ">");
-                    // }
-
-                    // Gui.update_list(names_list.toArray(new String[0]));
-
-                    // /*Node.get_instance().get_download_task_manager().add_new_download_task(
-                    //   file_search_result.get_file_name(),
-                    //   file_search_result.get_hash(),
-                    //   ( int ) file_search_result.get_file_size(),
-                    //   Node.get_instance().get_open_connections()
-                    // );*/
 
                   }
 
