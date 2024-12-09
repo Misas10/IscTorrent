@@ -1,7 +1,6 @@
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
 
 public class Download_Task extends Thread {
 
@@ -44,12 +43,16 @@ public class Download_Task extends Thread {
     private final byte[] file_hash;
     private final byte[] file_data;
     private final long start_time;
-    
+    private double final_time;
+    private List<Connection> connections;
+
     public Download_Task( final String file_name, final byte[] file_hash, final int file_size, final List< Connection > connections ) { 
 
         start_time = System.currentTimeMillis();
         
-        this.file_name = file_name; file_data = new byte[ ( int ) file_size ]; this.file_hash = file_hash; set_data_blocks(); 
+        this.file_name = file_name; file_data = new byte[ ( int ) file_size ]; this.file_hash = file_hash; set_data_blocks();
+
+        this.connections = connections;
         
         for( Connection connection : connections ) send_new_block_request( connection ); 
 
@@ -85,7 +88,7 @@ public class Download_Task extends Thread {
     private synchronized void set_file_data( final int offset, final int length, final byte[] data ) 
         { System.arraycopy( data, 0, file_data, offset, length ); }
 
-    private final boolean is_completed() {
+    private boolean is_completed() {
 
         boolean is_completed = true;
 
@@ -210,13 +213,34 @@ public class Download_Task extends Thread {
         data_block_target.set_status( Data_Block.Data_Block_Status.RESOLVED ); 
 
         if( is_completed() ) {
+            final_time = (( double ) System.currentTimeMillis() - start_time ) / 1000;
 
-            Gui.showInfo( "Tempo total: " + ( ( double ) System.currentTimeMillis() - start_time ) / 1000 + " segundos");
-
+            Gui.showInfo("Download Succecfully! \n\n" + finishedMessage());
         }
 
         send_new_block_request( connection );
         
     }
 
+    private String finishedMessage() {
+        String str = "";
+        HashMap<Connection, Integer> map = new HashMap<>();
+
+        // Count the numbers of blocks/threads
+        for(Data_Block data_block : blocks) {
+            int count = map.get(data_block.connection) == null ? 0 : map.get(data_block.connection) + 1;
+
+            map.put(data_block.connection, count);
+        }
+
+        // Add the number of thread of every connection
+        for(Connection connection : map.keySet())
+            str += connection.get_ip() + ":" + map.get(connection) + "\n";
+
+
+        // Add the total time
+        str += "Total time: " + final_time + "s";
+
+        return str;
+    }
 }

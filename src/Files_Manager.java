@@ -34,6 +34,19 @@ public class Files_Manager extends Thread {
     private void set_files() {
 
         File folder = new File( dir_path );
+
+        if(!folder.exists()){
+            System.out.println("Folder does not exists!");
+
+            if(folder.mkdir())
+                System.out.println("Folder created");
+
+            else
+                System.out.println("Error trying to create the folder!");
+
+            return;
+        }
+
         File[] filesList = folder.listFiles();
 
         if( files == null ) return;

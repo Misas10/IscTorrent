@@ -22,14 +22,6 @@ public class IscTorrent {
 
         System.out.println("\nNew node: " + node);
 
-        try {
-            // Create a directory to store all the music file, and it creates only if is NOT already created
-            Files.createDirectories(Paths.get(node.getFolderPath()));
-
-        } catch (IOException e) {
-            System.out.println("Error creating the folder: " + e.getMessage());
-        }
-
         new Gui();
     }
 }
