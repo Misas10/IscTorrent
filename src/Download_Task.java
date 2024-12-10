@@ -88,7 +88,7 @@ public class Download_Task extends Thread {
     private synchronized void set_file_data( final int offset, final int length, final byte[] data ) 
         { System.arraycopy( data, 0, file_data, offset, length ); }
 
-    private boolean is_completed() {
+    public boolean is_completed() {
 
         boolean is_completed = true;
 

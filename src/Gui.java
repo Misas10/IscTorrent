@@ -78,6 +78,7 @@ public class Gui {
         download_button.addActionListener( new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                if(result_list.getSelectedValuesList().size() == 1)
 
                 for ( Rofly selected_download : result_list.getSelectedValuesList() )
 

@@ -25,7 +25,7 @@ public class Node extends Thread implements Serializable {
     private final DownloadTasksManager download_task_manager; // Manager for downloading files
     private final Files_Manager files_manager; // Files manager
 
-    public Node( String host, int port ) { node_ip = new IP( host, port ); download_task_manager = new DownloadTasksManager(); files_manager = new Files_Manager( getFolderPath() ); files_manager.start(); }
+    public Node( String host, int port ) { node_ip = new IP( host, port ); download_task_manager = new DownloadTasksManager(); download_task_manager.start(); files_manager = new Files_Manager( getFolderPath() ); files_manager.start(); }
 
     static public boolean set_instance( String host, int port ) { if ( instance != null ) return false; instance = new Node( host, port ); return true; }
 
@@ -80,7 +80,7 @@ public class Node extends Thread implements Serializable {
 
         Connection new_connection = new Connection( new IP( host, port ) );
 
-        if( ! open_connections.contains( new_connection ) ) {
+        if( ! open_connections.contains( new_connection )  && ! node_ip.equals( new_connection.get_ip() ) ) {
 
             if ( new_connection.socket_connection() && new_connection.connection_request( get_ip() ) ) {
         
