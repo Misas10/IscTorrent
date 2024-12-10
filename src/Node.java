@@ -114,6 +114,8 @@ public class Node extends Thread implements Serializable {
 
         synchronized( open_connections ) {
 
+            // System.out.println( open_connections.size() );
+
             for( Connection connection : open_connections ) connection.send_data( word_search_message );
 
         }
@@ -146,7 +148,6 @@ public class Node extends Thread implements Serializable {
     public void add_new_file_search( final FileSearchResult file_search_result ) {
 
         Connection connection_file_search_result = get_connection_by_ip( file_search_result.get_node_ip() );
-        if( connection_file_search_result == null ) { System.out.println("File search received from not connected connection error"); return; } // Connection is no longer available
 
         synchronized( files_search_results ) {
 
